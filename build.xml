@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="io.github.mczrtoy.ThePornDB" default="build">
+    <autoloader />
+
+    <property environment="env" />
+
+    <property name="build.dir" value="${project.basedir}/.build" />
+    <property name="src.dir" value="${project.basedir}/src" />
+    <property name="tmp.dir" value="${project.basedir}/tmp" />
+
+    <property name="build.bin.dir" value="${tmp.bin.dir}/${phing.project.name}" />
+    <property name="build.obj.dir" value="${tmp.obj.dir}/${phing.project.name}" />
+    <property name="build.out.dir" value="${tmp.out.dir}/bin" />
+
+    <property name="tmp.bin.dir" value="${tmp.dir}/bin" />
+    <property name="tmp.obj.dir" value="${tmp.dir}/obj" />
+    <property name="tmp.out.dir" value="${tmp.dir}/out" />
+    <property name="tmp.test.dir" value="${tmp.dir}/test" />
+
+    <fileset id="src.files" dir="${src.dir}">
+        <type type="file" />
+        <include name="*" />
+        <exclude name="*.lock" />
+        <exclude name="build.xml" />
+    </fileset>
+
+
+    <target name="prepare.version" depends="prepare.dependencies">
+        <if>
+            <and>
+                <isset property="env.VST_PACKAGE_VERSION" />
+                <not>
+                    <equals arg1="${env.VST_PACKAGE_VERSION}" arg2="0.0.0" />
+                </not>
+            </and>
+            <then>
+                <echo message="Preparing version ${env.VST_PACKAGE_VERSION}" />
+                <replaceregexp file="INFO" pattern="(?&lt;=&quot;version&quot;\W)\s+&quot;\d+\.\d+\&quot;" replace=" &quot;${env.VST_PACKAGE_VERSION}&quot;" />
+            </then>
+        </if>
+    </target>
+
+    <target name="prepare.dependencies">
+        <composer command="update" composer="${build.dir}/composer.phar">
+            <arg value="-q" />
+            <arg value="-n" />
+        </composer>
+    </target>
+
+    <target name="prepare.tmp">
+        <mkdir dir="${tmp.dir}" />
+    </target>
+
+
+
+    <target name="clean" depends="prepare.clean" />
+
+    <target name="prepare.clean" depends="prepare.dependencies">
+        <delete dir="${tmp.dir}" includeemptydirs="true" quiet="true" failonerror="false" />
+    </target>
+
+
+
+    <target name="build" depends="prepare.build">
+        <copy todir="${build.bin.dir}">
+            <fileset refid="src.files" />
+        </copy>
+    </target>
+
+    <target name="prepare.build" depends="prepare.tmp,prepare.dependencies" />
+
+
+
+    <target name="test" depends="prepare.build" />
+
+
+
+    <target name="package" depends="prepare.package,build">
+        <zip destfile="${build.out.dir}/${phing.project.name}.zip" basedir="${build.bin.dir}">
+            <fileset dir="${build.bin.dir}">
+                <include name="**/**" />
+                <exclude name="composer.*"/>
+            </fileset>
+         </zip>
+    </target>
+
+    <target name="prepare.package">
+        <mkdir dir="${build.out.dir}" />
+    </target>
+
+
+    <target name="rebuild" depends="clean,build" />
+    <target name="release" depends="rebuild,package" />
+</project>

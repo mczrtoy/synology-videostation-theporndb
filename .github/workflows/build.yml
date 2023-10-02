@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+    paths-ignore:
+    - '.vscode/**'
+    - '**.md'
+    - 'LICENSE'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VST_PACKAGE_VERSION: 0.${{github.run_number}}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup PHP 8.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    - name: Restore tools
+      run: ./.build/composer.sh install -q -n
+    - name: Build
+      run: |
+        source .build/setenv.sh
+        ./vendor/bin/phing -f build.xml prepare.version release
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: outputs
+        path: |
+          tmp/out/bin/**.*

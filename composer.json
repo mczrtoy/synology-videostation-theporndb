@@ -1,0 +1,9 @@
+{
+    "name": "mczrtoy/synology-videostation-theporndb",
+    "description": "Video information plugin for Synology Video Station based on ThePornDB",
+    "type": "project",
+    "license": "MIT",
+    "require-dev": {
+        "phing/phing": "2.*"
+    }
+}

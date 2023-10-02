@@ -1,0 +1,26 @@
+{
+    "id": "io.github.mczrtoy.ThePornDB",
+    "description": "Video information plugin for Synology Video Station based on ThePornDB",
+    "version": "0.0",
+    "site": "https://metadataapi.net/",
+    "entry_file": "loader.php",
+    "type": ["movie", "tvshow"],
+    "language": ["enu"],
+    "apikey_name": "tpdb_api_key",
+    "test_example": {
+        "movie": {
+            "title": "Matchball In Die Feuchte Spalte",
+            "original_available": "2005-10-06"
+        },
+        "tvshow": {
+            "title": "Anal Teen Angels",
+            "original_available": "2008-07-09"
+        },
+        "tvshow_episode": {
+            "title": "Tamed Teens",
+            "original_available": "2008-01-09",
+            "season": 3,
+            "episode": 2
+        }
+    }
+}
