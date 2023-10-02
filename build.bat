@@ -72,7 +72,7 @@ IF "%DEV_BUILD%"=="True" GOTO SETENV_DEV ELSE GOTO SETENV
 :: Set environment variables
 :: -------------------------------------------------------------------
 :SETENV
-CALL build\SetEnv.bat
+CALL .\.build\SetEnv.bat
 ECHO.
 GOTO BUILD
 

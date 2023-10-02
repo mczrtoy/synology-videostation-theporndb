@@ -3,7 +3,7 @@
     "description": "Video information plugin for Synology Video Station based on ThePornDB",
     "version": "0.0",
     "site": "https://metadataapi.net/",
-    "entry_file": "loader.php",
+    "entry_file": "loader.sh",
     "type": ["movie", "tvshow"],
     "language": ["enu"],
     "apikey_name": "tpdb_api_key",
@@ -18,9 +18,9 @@
         },
         "tvshow_episode": {
             "title": "Tamed Teens",
-            "original_available": "2008-01-09",
-            "season": 3,
-            "episode": 2
+            "original_available": "2007-04-17",
+            "season": 1,
+            "episode": 1127
         }
     }
 }

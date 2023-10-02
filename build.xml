@@ -31,12 +31,12 @@
             <and>
                 <isset property="env.VST_PACKAGE_VERSION" />
                 <not>
-                    <equals arg1="${env.VST_PACKAGE_VERSION}" arg2="0.0.0" />
+                    <equals arg1="${env.VST_PACKAGE_VERSION}" arg2="0.0" />
                 </not>
             </and>
             <then>
                 <echo message="Preparing version ${env.VST_PACKAGE_VERSION}" />
-                <replaceregexp file="INFO" pattern="(?&lt;=&quot;version&quot;\W)\s+&quot;\d+\.\d+\&quot;" replace=" &quot;${env.VST_PACKAGE_VERSION}&quot;" />
+                <replaceregexp file="${src.dir}/INFO" pattern="(?&lt;=&quot;version&quot;\W)\s+&quot;\d+\.\d+\&quot;" replace=" &quot;${env.VST_PACKAGE_VERSION}&quot;" />
             </then>
         </if>
     </target>
@@ -77,9 +77,9 @@
 
 
     <target name="package" depends="prepare.package,build">
-        <zip destfile="${build.out.dir}/${phing.project.name}.zip" basedir="${build.bin.dir}">
-            <fileset dir="${build.bin.dir}">
-                <include name="**/**" />
+        <zip destfile="${build.out.dir}/${phing.project.name}.zip" basedir="${tmp.bin.dir}">
+            <fileset dir="${tmp.bin.dir}">
+                <include name="${phing.project.name}/**/**" />
                 <exclude name="composer.*"/>
             </fileset>
          </zip>

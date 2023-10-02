@@ -1,3 +1,4 @@
 #!/bin/bash
 
-php $(dirname "$0")/composer.phar $@
+BASEDIR=$(dirname "$0")
+php "$BASEDIR/composer.phar" $@
