@@ -10,19 +10,23 @@ const TEST_SCENES = '{"data":[{"id":"f9a03313-f581-48a0-a5d0-57176d31e045","_id"
 const TEST_SITE = '{"data":[{"uuid":"b6caaaa9-c855-4cb2-841f-e428bd0ea2b5","id":1127,"parent_id":968,"network_id":3525,"name":"Tamed Teens","short_name":"tamedteens","url":"https:\/\/perfectgonzo.com","description":"Tamed Teens is a part of the DEV8 Entertainment network.","rating":0,"logo":"https:\/\/cdn.metadataapi.net\/sites\/fd\/ff\/42\/d611964e7ed4bd30a3a47ffea57a47d\/logo\/tamedteens-logo.png","favicon":"https:\/\/cdn.metadataapi.net\/sites\/f2\/46\/ed\/9eb2b7325d10ab0e8cc574a7168d68e\/favicon\/tamedteens-logo.png","poster":"https:\/\/cdn.metadataapi.net\/sites\/b4\/8d\/0a\/04c135ce626428496b4424788bbbdf8\/poster\/poster.jpg","network":{"uuid":"cd3506dc-e4a9-4207-962a-bfb2693c70b3","id":3525,"name":"DEV8 Entertainment","short_name":"dev8entertainment"},"parent":{"uuid":"84ab429d-7a36-4d71-8b75-57eae119cfcd","id":968,"name":"Perfect Gonzo","short_name":"perfectgonzo"}}],"links":{"first":"https:\/\/api.metadataapi.net\/sites?page=1","last":"https:\/\/api.metadataapi.net\/sites?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":1,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","active":false},{"url":"https:\/\/api.metadataapi.net\/sites?page=1","label":"1","active":true},{"url":null,"label":"Next &raquo;","active":false}],"path":"https:\/\/api.metadataapi.net\/sites","per_page":24,"to":1,"total":1}}';
 
 
+$nameMapper = function($p) {
+    return $p->name;
+};
+$isValidImage = function($i) {
+    return !empty($i) && !str_ends_with($i, 'webp');
+};
 
 function search_movie($input, $limit, $apikey)
 {
     $movieMapper = function($r) {
-        $nameMapper = function($p) {
-            return $p->name;
-        };
-
+        global $isValidImage, $nameMapper;
         $unknown = new stdClass;
         $unknown->name = 'Unknown';
         $unknown_array = array($unknown);
 
         $ret = new stdClass;
+        $ret->certificate = 'NC-17';
         $ret->title = $r->title;
         $ret->summary = empty($r->description) ? $r->title : $r->description;
         $ret->original_available = $r->date;
@@ -32,8 +36,20 @@ function search_movie($input, $limit, $apikey)
         $ret->writer = array_map($nameMapper, $unknown_array);
 
         $extra = new stdClass;
-        $extra->backdrop = array_values(get_object_vars($r->background));
-        $extra->poster = array($r->poster);
+        if (!empty($r->background)) {
+            $extra->backdrop = array_unique(array_values(array_filter(array_values(get_object_vars($r->background)), $isValidImage)));
+        }
+        $poster_array = array();
+        if (!empty($s->poster)) {
+            $poster_array = array($r->poster);
+        }
+        if (!empty($r->posters)) {
+            $poster_array = array_merge($poster_array, array_values(get_object_vars($r->posters)));
+        }
+        $poster_array = array_unique(array_values(array_filter($poster_array, $isValidImage)));
+        if (!empty($poster_array)) {
+            $extra->poster = $poster_array;
+        }
 
         $reference = new stdClass;
         $reference->theporndb = $r->id;
@@ -88,23 +104,30 @@ function search_movie($input, $limit, $apikey)
 function search_scene($input, $limit, $apikey)
 {
     $sceneMapper = function($r) {
+        global $isValidImage, $nameMapper;
         $showMapper = function($s) {
+            global $isValidImage;
             $show = new stdClass;
             $show->title = $s->name;
             $show->summary = empty($s->description) ? $s->name : $s->description;
-            $show->original_available = '0001-01-01';
+            $show->original_available = '1888-01-01';
 
             $extra = new stdClass;
+            $poster_array = array();
             if (!empty($s->poster)) {
-                $extra->poster = array($s->poster);
+                $poster_array = array($s->poster);
             }
+            if (!empty($s->posters)) {
+                $poster_array = array_merge($poster_array, array_values(get_object_vars($s->posters)));
+            }
+            $poster_array = array_unique(array_values(array_filter($poster_array, $isValidImage)));
+            if (!empty($poster_array)) {
+                $extra->poster = $poster_array;
 
-            $show->extra = new stdClass;
-            $show->extra->{'io.github.mczrtoy.ThePornDB'} = $extra;
+                $show->extra = new stdClass;
+                $show->extra->{'io.github.mczrtoy.ThePornDB'} = $extra;
+            }
             return $show;
-        };
-        $nameMapper = function($p) {
-            return $p->name;
         };
 
         $unknown = new stdClass;
@@ -126,7 +149,9 @@ function search_scene($input, $limit, $apikey)
 
         $extra = new stdClass;
         $extra->tvshow = $showMapper($r->site);
-        $extra->poster = array($r->image);
+        if ($isValidImage($r->image)) {
+            $extra->poster = array($r->image);
+        }
 
         $reference = new stdClass;
         $reference->theporndb = $r->id;
